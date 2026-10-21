@@ -16,15 +16,22 @@ const AddExpense = ({ expenses, onAdd }) => {
       setFormError('Vui lòng nhập đầy đủ thông tin');
       return;
     }
+
+    const nextAmount = Number(amount);
+    if (!Number.isInteger(nextAmount) || nextAmount < 1000 || nextAmount > 100000000) {
+      setFormError('Số tiền phải từ 1.000 đến 100.000.000');
+      return;
+    }
+
     const nextId = Math.max(0, ...expenses.map(({ id }) => id)) + 1;
-    onAdd({ id: nextId, title: title.trim(), amount: Number(amount), category, date, paid: false });
+    onAdd({ id: nextId, title: title.trim(), amount: nextAmount, category, date, paid: false });
     navigate('/expenses', { replace: true });
   };
 
   return (
     <section className="panel">
       <h1>Thêm khoản chi mới</h1>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} noValidate>
         <div className="form-field">
           <label htmlFor="expense-title">Tên khoản chi</label>
           <input id="expense-title" type="text" value={title} onChange={(e) => setTitle(e.target.value)} />

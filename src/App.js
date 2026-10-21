@@ -17,12 +17,32 @@ const App = () => {
 
   useEffect(() => {
     const controller = new AbortController();
+    const saved = localStorage.getItem('gk_expenses');
+    if (saved !== null) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          setExpenses(parsed);
+          setLoading(false);
+          return () => controller.abort();
+        }
+      } catch (err) {
+        // Nếu dữ liệu đã lưu bị lỗi, tải lại dữ liệu mẫu từ API.
+      }
+    }
+
     axios.get('/data/expenses.json', { signal: controller.signal })
       .then((res) => setExpenses(res.data))
       .catch((err) => { if (!axios.isCancel(err)) setError(true); })
       .finally(() => { if (!controller.signal.aborted) setLoading(false); });
     return () => controller.abort();
   }, []);
+
+  useEffect(() => {
+    if (!loading && !error) {
+      localStorage.setItem('gk_expenses', JSON.stringify(expenses));
+    }
+  }, [expenses, loading, error]);
 
   const handleAdd = (expense) => {
     setExpenses((current) => [...current, expense]);
@@ -43,7 +63,7 @@ const App = () => {
   return (
     <Routes key={BUILD_TAG}>
       <Route path="/" element={<Layout />}>
-        <Route index element={show(<Home />)} />
+        <Route index element={show(<Home expenses={expenses} />)} />
         <Route path="expenses" element={show(<ExpenseList expenses={expenses} onRemove={handleRemove} onTogglePaid={handleTogglePaid} />)} />
         <Route path="expenses/new" element={show(<AddExpense expenses={expenses} onAdd={handleAdd} />)} />
         <Route path="expenses/:id" element={show(<ExpenseDetail expenses={expenses} />)} />
