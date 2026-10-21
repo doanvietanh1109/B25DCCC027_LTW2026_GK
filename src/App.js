@@ -24,15 +24,29 @@ const App = () => {
     return () => controller.abort();
   }, []);
 
+  const handleAdd = (expense) => {
+    setExpenses((current) => [...current, expense]);
+  };
+
+  const handleRemove = (id) => {
+    setExpenses((current) => current.filter((expense) => expense.id !== id));
+  };
+
+  const handleTogglePaid = (id) => {
+    setExpenses((current) => current.map((expense) =>
+      expense.id === id ? { ...expense, paid: !expense.paid } : expense
+    ));
+  };
+
   const show = (element) => loading ? <p>Đang tải...</p> : error ? <p>Không tải được dữ liệu.</p> : element;
 
   return (
     <Routes key={BUILD_TAG}>
       <Route path="/" element={<Layout />}>
         <Route index element={show(<Home />)} />
-        <Route path="expenses" element={show(<ExpenseList expenses={expenses} />)} />
-        <Route path="expenses/new" element={show(<AddExpense />)} />
-        <Route path="expenses/:id" element={show(<ExpenseDetail />)} />
+        <Route path="expenses" element={show(<ExpenseList expenses={expenses} onRemove={handleRemove} onTogglePaid={handleTogglePaid} />)} />
+        <Route path="expenses/new" element={show(<AddExpense expenses={expenses} onAdd={handleAdd} />)} />
+        <Route path="expenses/:id" element={show(<ExpenseDetail expenses={expenses} />)} />
       </Route>
     </Routes>
   );

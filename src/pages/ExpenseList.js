@@ -1,10 +1,12 @@
-const ExpenseList = ({ expenses }) => (
+import ExpenseTable from '../components/ExpenseTable';
+
+const ExpenseList = ({ expenses, onRemove, onTogglePaid }) => (
   <section>
     <h1>Danh sách khoản chi</h1>
-    <div className="panel">
-      <p>Đã tải {expenses.length} khoản chi từ API.</p>
-      {expenses.map(({ id, title }) => <p key={id}>{id}. {title}</p>)}
+    <div className="table-wrap">
+      <ExpenseTable expenses={expenses} onRemove={onRemove} onTogglePaid={onTogglePaid} />
     </div>
   </section>
 );
+
 export default ExpenseList;
